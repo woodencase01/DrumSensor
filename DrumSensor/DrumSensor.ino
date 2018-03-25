@@ -22,12 +22,12 @@ byte 1: Sensor id
 byte 2: [0 - 200]: Sensor strength
 byte 3: End byte (255)
 */
-const int databytes = 4;
+const int databytes = 3;
 byte databuffer[databytes];
 byte datastroke[databytes];
 bool senddata = false;
 
-//#define DEBUG
+#define DEBUG
 
 const int nbsensors = 1;
 
@@ -81,44 +81,47 @@ void readBuffer(){
   
   if(buffersize >= databytes){
     
-    #ifdef DEBUG
+    /*#ifdef DEBUG
       Serial.print("Current buffer: ");
       Serial.println(buffersize);
-    #endif 
+    #endif */
     
     bool goodbuffer = false;
     
-    while(Serial.available() > databytes){
+    while(Serial.available() >= databytes){
       byte bufferread = Serial.read();
       
-      #ifdef DEBUG
+      /*#ifdef DEBUG
         Serial.print("Current read: ");
         Serial.println(bufferread);
-      #endif 
+      #endif */
       
-      if (bufferread == 254) goodbuffer = true;
+      if (bufferread == 254){
+        goodbuffer = true;
+        break;
+      }
     }
     
     if(goodbuffer){
-      for(int i=0; i<databytes-2; i++){
-      databuffer[i+1] = Serial.read();
+      for(int i=1; i<databytes; i++){
+      databuffer[i] = Serial.read();
       }
       senddata = true;
       
       #ifdef DEBUG
-        Serial.read(); // Delete char 10 when using console
         Serial.print("Received: ");
-          for(int i=0; i<databytes; i++){
+          for(int i=0; i<databytes-1; i++){
           Serial.print(databuffer[i]);
           Serial.print(",");
           }
-        Serial.println("");
+        Serial.println(databuffer[databytes-1]);
       #endif
     }
   }
 }
 
 void sendBuffer(){
+  databuffer[0] = 254;
   databuffer[1]++;
   Serial.write(databuffer, databytes);
   senddata = false;
@@ -129,22 +132,23 @@ void sendBuffer(){
         Serial.print(databuffer[i]);
         Serial.print(",");
       }
-    Serial.println(databuffer[databytes]);  
+    Serial.println(databuffer[databytes-1]);  
   #endif  
 }
 
 void sendStroke(byte padstroke){
-  datastroke[0] = 0;
-  datastroke[1] = padstroke;
+  datastroke[0] = 254;
+  datastroke[1] = 0;
+  datastroke[2] = padstroke;
   Serial.write(datastroke, databytes);
   
   #ifdef DEBUG
   Serial.print("Sent: ");
-  for(int i=0; i<databytes; i++){
+  for(int i=0; i<databytes-1; i++){
         Serial.print(datastroke[i]);
         Serial.print(",");
       }
-  Serial.println("");
+  Serial.println(datastroke[databytes-1]); 
   #endif  
 }
 
@@ -187,7 +191,7 @@ void manageSensors(){
       sensorstate[i] = 0;
       
       #ifdef DEBUG
-      Serial.print("Mumber of reads: ");
+      Serial.print("Number of reads: ");
       Serial.println(numberreads[i]);
       numberreads[i] = 0;
       #endif DEBUG
