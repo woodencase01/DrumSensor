@@ -29,12 +29,6 @@ What things you need to install the software and how to install them
 * Install the prerequisites
 * Clone this git to your PC
 
-## Authors
-
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
-
 ## License
 
 This project is licensed under the  GNU GENERAL PUBLIC LICENSE - see the [LICENSE.md](LICENSE.md) file for details
