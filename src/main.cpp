@@ -29,18 +29,21 @@ unsigned long startread[] = {0, 0, 0, 0, 0};
 int numberreads[] = {0, 0, 0, 0, 0};
 #endif
 
-void setup() {
+void setup()
+{
 
   configureSensors();
   readConfig();
+  initializeModule()
 
-  Serial.begin(9600);
+      Serial.begin(9600);
 
 #ifdef DEBUG
   Serial.print("Pad type: ");
   Serial.println(padType);
   Serial.print("Pad thresholds: ");
-  for (int i = 0; i < numberPads; i++) {
+  for (int i = 0; i < nbPadSensors; i++)
+  {
     Serial.print(threshold[i]);
     Serial.print(", ");
   }
@@ -51,11 +54,13 @@ void setup() {
 #endif
 }
 
-void loop() {
+void loop()
+{
 
   readBuffer();
 
-  if (senddata) {
+  if (senddata)
+  {
     sendBuffer();
   }
 

@@ -1,14 +1,17 @@
 /*
   -=-=-=- Data protocol -=-=-=-
   byte 0: Start byte [255]
-  byte 1: Pad id
+  byte 1: Pad id (Always 0 as the first pad)
   byte 2: Sensor strength [0 - 200]
-  byte 3: Sensor id [0: Pad / Cymbal edge, 1: Rim / Cymbal bow, 2: Cymbal Bell]
+  byte 3: Sensor id 
+  *0-99: Pad / Cymbal bow (Position sensitive)
+  *100: Pad / Cymbal (Single zone pad)
+  *101: Rim
 */
 #include <Arduino.h>
 #include "communication.h"
 
-const int databytes = 5;
+const int databytes = 4;
 byte databuffer[databytes];
 byte datastroke[databytes];
 
@@ -73,11 +76,11 @@ void sendBuffer() {
 #endif
 }
 
-void sendStroke(byte padstroke, byte padid) {
+void sendStroke(byte strokeStrength, byte strokeID) {
   datastroke[0] = 255;
   datastroke[1] = 0;
-  datastroke[2] = padstroke;
-  datastroke[3] = padid;
+  datastroke[2] = strokeStrength;
+  datastroke[3] = strokeID;
   Serial.write(datastroke, databytes);
 
 #ifdef DEBUG
