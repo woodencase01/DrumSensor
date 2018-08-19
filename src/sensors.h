@@ -1,3 +1,11 @@
+//sensors.h
+
+#ifndef _sensors_h
+#define _sensors_h
+
+#include <Arduino.h>
+#include "communication.h"
+
 /*
   -=-=-=- Sensors -=-=-=-
   0: Waiting for decay
@@ -6,5 +14,7 @@
   3: Final value
 */
 
-void manageSensors();
-void readSensors();
+void manageSensors(void);
+void readSensors(void);
+
+#endif

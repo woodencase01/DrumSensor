@@ -1,25 +1,30 @@
 /*
   -=-=-=- Data protocol -=-=-=-
   byte 0: Start byte [255]
-  byte 1: Pad id (Always 0 as the first pad)
+  byte 1: Pad id
   byte 2: Sensor strength [0 - 200]
   byte 3: Sensor id 
   *0-99: Pad / Cymbal bow (Position sensitive)
   *100: Pad / Cymbal (Single zone pad)
   *101: Rim
+
+  -=-=-=- Configuration Protocol -=-=-=-
+  byte 0: Start byte [254]
+
 */
-#include <Arduino.h>
 #include "communication.h"
 
-const int databytes = 4;
+const byte databytes = 4;
 byte databuffer[databytes];
 byte datastroke[databytes];
 
-void readBuffer() {
+void readBuffer()
+{
 
   int buffersize = Serial.available();
 
-  if (buffersize >= databytes) {
+  if (buffersize >= databytes)
+  {
 
     /*#ifdef DEBUG
       Serial.print("Current buffer: ");
@@ -28,7 +33,8 @@ void readBuffer() {
 
     bool goodbuffer = false;
 
-    while (Serial.available() >= databytes) {
+    while (Serial.available() >= databytes)
+    {
       byte bufferread = Serial.read();
 
       /*#ifdef DEBUG
@@ -36,21 +42,24 @@ void readBuffer() {
         Serial.println(bufferread);
         #endif */
 
-      if (bufferread == 255) {
+      if (bufferread == 255)
+      {
         goodbuffer = true;
         break;
       }
     }
 
-    if (goodbuffer) {
-      for (int i = 1; i < databytes; i++) {
+    if (goodbuffer)
+    {
+      for (int i = 1; i < databytes; i++)
+      {
         databuffer[i] = Serial.read();
       }
-      senddata = true;
 
 #ifdef DEBUG
       Serial.print("Received: ");
-      for (int i = 0; i < databytes - 1; i++) {
+      for (int i = 0; i < databytes - 1; i++)
+      {
         Serial.print(databuffer[i]);
         Serial.print(",");
       }
@@ -60,32 +69,18 @@ void readBuffer() {
   }
 }
 
-void sendBuffer() {
-  databuffer[0] = 255;
-  databuffer[1]++;
-  Serial.write(databuffer, databytes);
-  senddata = false;
-
-#ifdef DEBUG
-  Serial.print("Sent: ");
-  for (int i = 0; i < databytes - 1; i++) {
-    Serial.print(databuffer[i]);
-    Serial.print(",");
-  }
-  Serial.println(databuffer[databytes - 1]);
-#endif
-}
-
-void sendStroke(byte strokeStrength, byte strokeID) {
+void sendStroke(byte strokeStrength, byte strokeID)
+{
   datastroke[0] = 255;
-  datastroke[1] = 0;
+  datastroke[1] = padid;
   datastroke[2] = strokeStrength;
   datastroke[3] = strokeID;
   Serial.write(datastroke, databytes);
 
 #ifdef DEBUG
   Serial.print("Sent: ");
-  for (int i = 0; i < databytes - 1; i++) {
+  for (int i = 0; i < databytes - 1; i++)
+  {
     Serial.print(datastroke[i]);
     Serial.print(",");
   }

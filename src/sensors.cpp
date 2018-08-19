@@ -5,20 +5,19 @@
   2: Successive readings
   3: Final value
 */
-#include <Arduino.h>
-#include "communication.h"
-#include "config.h"
+#include "sensors.h"
 
 const int numSensors = 5;
 const int sensorspin[numSensors] = {0, 1, 2, 3, 4};
 
-const int peakread = 1;  // time in millis before a peak is read
+const int readtimes = 5; // Number of times the sensor is read
 const int mindecay = 2;  // Maximum decay time (ms)
 const int maxdecay = 15; // Maximum decay time (ms)
 
 int maxsensorvalue[] = {0, 0, 0, 0, 0};
 byte sensorstroke[] = {0, 0, 0, 0, 0};
 byte sensorstate[] = {0, 0, 0, 0, 0};
+byte sensorreadtimes[] = {0, 0, 0, 0, 0};
 
 unsigned long sensorsdecayend[numSensors];
 unsigned long startread[numSensors];
@@ -42,52 +41,48 @@ void manageSensors()
 
     if (sensorstate[i] == 2)
     { //2: Successive readings
-      if (startread[i] + peakread < now)
+      if (sensorreadtimes[i] >= readtimes)
         sensorstate[i] = 3;
     }
   }
 
-// Then manage the strokes
-  if ((padType == 1 || padType == 3) && sensorstate[0] == 3) // Single zone pad or cymbal
+  // Then manage the strokes
+  if ((padType == 0 || padType == 1 || padType == 3) && sensorstate[0] == 3) // Single zone pad or cymbal
   {
+
     sensorstroke[0] = map(maxsensorvalue[0], 0, 1023, 0, 200);
-    sensorsdecayend[0] = map(maxsensorvalue[0], 0, 1023, mindecay, maxdecay) + now;
 
     if (sensorstroke[0] > 0)
     {
       sendStroke(sensorstroke[0], 100);
     }
 
+    sensorsdecayend[0] = map(maxsensorvalue[0], 0, 1023, mindecay, maxdecay) + now;
+
     maxsensorvalue[0] = 0;
     sensorstate[0] = 0;
-
-#ifdef DEBUG
-    Serial.print("Number of reads: ");
-    Serial.println(numberreads[i]);
-    numberreads[i] = 0;
-#endif DEBUG
+    sensorreadtimes[0] = 0;
   }
 
   if ((padType == 2 || padType == 4) && (sensorstate[0] == 3 && sensorstate[1] == 3 && sensorstate[2] == 3)) // Multi zone pad or cymbal
   {
-//To do
+    //To do
   }
 
-if ((padType == 1 || padType == 2) && sensorstate[4] == 3) // Single or multi zone pad
+  if ((padType == 1 || padType == 2) && sensorstate[4] == 3) // Single or multi zone pad
   {
-//To do
+    //To do
   }
-    sensorstroke[4] = map(maxsensorvalue[4], 0, 1023, 0, 200);
-    sensorsdecayend[4] = map(maxsensorvalue[4], 0, 1023, mindecay, maxdecay) + now;
+  sensorstroke[4] = map(maxsensorvalue[4], 0, 1023, 0, 200);
+  sensorsdecayend[4] = map(maxsensorvalue[4], 0, 1023, mindecay, maxdecay) + now;
 
-    if (sensorstroke[4] > 0)
-    {
-      sendStroke(sensorstroke[4], 101);
-    }
+  if (sensorstroke[4] > 0)
+  {
+    sendStroke(sensorstroke[4], 101);
+  }
 
-    maxsensorvalue[4] = 0;
-    sensorstate[4] = 0;
-
+  maxsensorvalue[4] = 0;
+  sensorstate[4] = 0;
 }
 
 void readSensors()
@@ -106,9 +101,7 @@ void readSensors()
         if (val > maxsensorvalue[i])
           maxsensorvalue[i] = val;
 
-#ifdef DEBUG
-        numberreads[i]++;
-#endif DEBUG
+        sensorreadtimes[i]++;
 
         sensorstate[i] = 2;
         startread[i] = now;
@@ -121,9 +114,7 @@ void readSensors()
       if (val > maxsensorvalue[i])
         maxsensorvalue[i] = val;
 
-#ifdef DEBUG
-      numberreads[i]++;
-#endif DEBUG
+      sensorreadtimes[i]++;
     }
   }
 }

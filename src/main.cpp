@@ -17,26 +17,14 @@
 
 #include <Arduino.h>
 #include "sensors.h"
-#include "config.h"
-#include "communication.h"
-
-#define DEBUG
-
-unsigned long sensorsdecayend[] = {0, 0, 0, 0, 0};
-unsigned long startread[] = {0, 0, 0, 0, 0};
-
-#ifdef DEBUG
-int numberreads[] = {0, 0, 0, 0, 0};
-#endif
 
 void setup()
 {
 
   configureSensors();
   readConfig();
-  initializeModule()
 
-      Serial.begin(9600);
+  Serial.begin(115200);
 
 #ifdef DEBUG
   Serial.print("Pad type: ");
@@ -47,7 +35,7 @@ void setup()
     Serial.print(threshold[i]);
     Serial.print(", ");
   }
-  Serial.println;
+  Serial.println();
   Serial.print("Center threshold: ");
   Serial.println(centerThreshold);
   Serial.println("Drum Sensor Ready");
@@ -56,14 +44,7 @@ void setup()
 
 void loop()
 {
-
   readBuffer();
-
-  if (senddata)
-  {
-    sendBuffer();
-  }
-
   manageSensors();
   readSensors();
 }

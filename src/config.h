@@ -1,12 +1,20 @@
+//config.h
+
+#ifndef _config_h
+#define _config_h
+
 #include <Arduino.h>
 
-byte padType;
-int threshold[];
-int nbPadSensors;
-byte centerThreshold;
+extern byte threshold[5];
+extern byte padType;
+extern int nbPadSensors;
+extern byte centerThreshold;
+extern byte padid;
 
-void configureSensors();
+void configureSensors(void);
 
-void initializeModule();
+void initializeModule(void);
 
-void readConfig();
+void readConfig(void);
+
+#endif
