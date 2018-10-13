@@ -75,9 +75,16 @@ void sendStroke(byte strokeStrength, byte strokeID)
   datastroke[1] = padid;
   datastroke[2] = strokeStrength;
   datastroke[3] = strokeID;
+  while (digitalRead(readCom))
+  {
+    // Wait until the communication pin goes low
+  }
+  digitalWrite(activeCom, HIGH);
   Serial.write(datastroke, databytes);
+  digitalWrite(activeCom, LOW);
 
 #ifdef DEBUG
+  Serial.println();
   Serial.print("Sent: ");
   for (int i = 0; i < databytes - 1; i++)
   {

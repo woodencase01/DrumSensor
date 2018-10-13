@@ -21,8 +21,9 @@
 void setup()
 {
 
-  configureSensors();
-  readConfig();
+  configureSensors(); // Make sure EEPROM is configured correctly after first flash
+  readConfig(); // Assign variables based on EEPROM
+  configurePins();
 
   Serial.begin(115200);
 
@@ -44,7 +45,6 @@ void setup()
 
 void loop()
 {
-  readBuffer();
   manageSensors();
   readSensors();
 }

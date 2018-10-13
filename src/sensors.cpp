@@ -8,7 +8,7 @@
 #include "sensors.h"
 
 const int numSensors = 5;
-const int sensorspin[numSensors] = {0, 1, 2, 3, 4};
+const int sensorspin[numSensors] = {sensor1, 1, 2, 3, 4};
 
 const int readtimes = 5; // Number of times the sensor is read
 const int mindecay = 2;  // Maximum decay time (ms)
@@ -33,16 +33,22 @@ void manageSensors()
 
     if (sensorstate[i] == 0)
     { //0: Waiting for decay
-      if (sensorsdecayend[i] < now)
-        sensorstate[i] = 1;
+      if (sensorsdecayend[i] < now) sensorstate[i] = 1;
     }
 
-    //1: First read : managed in read sensors
+    /*
+    if (sensorstate[i] == 1)
+    { //1: First read : managed in read sensors
+    }*/
 
     if (sensorstate[i] == 2)
     { //2: Successive readings
-      if (sensorreadtimes[i] >= readtimes)
-        sensorstate[i] = 3;
+      if (sensorreadtimes[i] >= readtimes) sensorstate[i] = 3;
+
+#ifdef DEBUG
+      Serial.print("Maximum value: ");
+      Serial.println(maxsensorvalue[i]);
+#endif
     }
   }
 
@@ -50,9 +56,9 @@ void manageSensors()
   if ((padType == 0 || padType == 1 || padType == 3) && sensorstate[0] == 3) // Single zone pad or cymbal
   {
 
-    sensorstroke[0] = map(maxsensorvalue[0], 0, 1023, 0, 200);
+    sensorstroke[0] = map(maxsensorvalue[0], 0, upperThreshold[0] * 4, 0, 200);
 
-    if (sensorstroke[0] > 0)
+    if (sensorstroke[0] > 0) // Avoid sending an empty signal
     {
       sendStroke(sensorstroke[0], 100);
     }
