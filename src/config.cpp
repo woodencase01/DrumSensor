@@ -22,8 +22,6 @@
 #include "config.h"
 #include <EEPROM.h>
 
-#define DEBUG
-
 byte threshold[5];
 byte upperThreshold[5];
 byte padType;

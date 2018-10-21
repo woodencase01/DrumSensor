@@ -5,7 +5,7 @@
 
 #include <Arduino.h>
 
-#define DEBUG
+//#define DEBUG
 
 extern byte threshold[5];
 extern byte upperThreshold[5];

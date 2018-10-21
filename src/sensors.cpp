@@ -6,11 +6,15 @@
   3: Final value
 */
 #include "sensors.h"
+#include "avdweb_AnalogReadFast.h"
 
 const int numSensors = 5;
 const int sensorspin[numSensors] = {sensor1, 1, 2, 3, 4};
 
-const int readtimes = 5; // Number of times the sensor is read
+const int readtimes = 10; // Number of times the sensor is read
+#ifdef DEBUG
+int sensor1val[readtimes];
+#endif
 const int mindecay = 2;  // Maximum decay time (ms)
 const int maxdecay = 15; // Maximum decay time (ms)
 
@@ -33,7 +37,8 @@ void manageSensors()
 
     if (sensorstate[i] == 0)
     { //0: Waiting for decay
-      if (sensorsdecayend[i] < now) sensorstate[i] = 1;
+      if (sensorsdecayend[i] < now)
+        sensorstate[i] = 1;
     }
 
     /*
@@ -43,12 +48,8 @@ void manageSensors()
 
     if (sensorstate[i] == 2)
     { //2: Successive readings
-      if (sensorreadtimes[i] >= readtimes) sensorstate[i] = 3;
-
-#ifdef DEBUG
-      Serial.print("Maximum value: ");
-      Serial.println(maxsensorvalue[i]);
-#endif
+      if (sensorreadtimes[i] >= readtimes)
+        sensorstate[i] = 3;
     }
   }
 
@@ -56,11 +57,20 @@ void manageSensors()
   if ((padType == 0 || padType == 1 || padType == 3) && sensorstate[0] == 3) // Single zone pad or cymbal
   {
 
-    sensorstroke[0] = map(maxsensorvalue[0], 0, upperThreshold[0] * 4, 0, 200);
+    sensorstroke[0] = map(maxsensorvalue[0], 0, 200, 0, 200); //upperThreshold[0] * 4
 
     if (sensorstroke[0] > 0) // Avoid sending an empty signal
     {
       sendStroke(sensorstroke[0], 100);
+
+#ifdef DEBUG
+      for (byte i = 0; i < readtimes; i++)
+      {
+        Serial.print(sensor1val[i]);
+        Serial.print(", ");
+      }
+      Serial.println("");
+#endif
     }
 
     sensorsdecayend[0] = map(maxsensorvalue[0], 0, 1023, mindecay, maxdecay) + now;
@@ -77,18 +87,17 @@ void manageSensors()
 
   if ((padType == 1 || padType == 2) && sensorstate[4] == 3) // Single or multi zone pad
   {
-    //To do
-  }
-  sensorstroke[4] = map(maxsensorvalue[4], 0, 1023, 0, 200);
-  sensorsdecayend[4] = map(maxsensorvalue[4], 0, 1023, mindecay, maxdecay) + now;
+    sensorstroke[4] = map(maxsensorvalue[4], 0, 1023, 0, 200);
+    sensorsdecayend[4] = map(maxsensorvalue[4], 0, 1023, mindecay, maxdecay) + now;
 
-  if (sensorstroke[4] > 0)
-  {
-    sendStroke(sensorstroke[4], 101);
-  }
+    if (sensorstroke[4] > 0)
+    {
+      sendStroke(sensorstroke[4], 101);
+    }
 
-  maxsensorvalue[4] = 0;
-  sensorstate[4] = 0;
+    maxsensorvalue[4] = 0;
+    sensorstate[4] = 0;
+  }
 }
 
 void readSensors()
@@ -101,22 +110,35 @@ void readSensors()
 
     if (sensorstate[i] == 1)
     { //1: First read
-      int val = analogRead(sensorspin[i]);
+      int val = analogReadFast(sensorspin[i]);
       if (val > threshold[i])
       {
+#ifdef DEBUG
+        sensor1val[0] = val;
+#endif
+
         if (val > maxsensorvalue[i])
+        {
           maxsensorvalue[i] = val;
 
-        sensorreadtimes[i]++;
+          sensorreadtimes[i]++;
 
-        sensorstate[i] = 2;
-        startread[i] = now;
+          sensorstate[i] = 2;
+          startread[i] = now;
+        }
       }
     }
 
     if (sensorstate[i] == 2)
     {
-      int val = analogRead(sensorspin[i]);
+      //int val = analogRead(sensorspin[i]);
+      analogReadFast(sensorspin[i]); //Flush value
+      int val = analogReadFast(sensorspin[i]);
+
+#ifdef DEBUG
+      sensor1val[sensorreadtimes[i]] = val;
+#endif
+
       if (val > maxsensorvalue[i])
         maxsensorvalue[i] = val;
 
