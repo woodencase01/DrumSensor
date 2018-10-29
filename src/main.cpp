@@ -17,6 +17,7 @@
 
 #include <Arduino.h>
 #include "sensors.h"
+#include "_settings.h"
 
 void setup()
 {

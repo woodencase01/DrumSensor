@@ -6,25 +6,20 @@
   3: Final value
 */
 #include "sensors.h"
-#include "avdweb_AnalogReadFast.h"
-
-const int numSensors = 5;
-const int sensorspin[numSensors] = {sensor1, 1, 2, 3, 4};
 
 const int readtimes = 10; // Number of times the sensor is read
+
 #ifdef DEBUG
-int sensor1val[readtimes];
+uint16_t sensorVal[5][readtimes];
 #endif
-const int mindecay = 2;  // Maximum decay time (ms)
-const int maxdecay = 15; // Maximum decay time (ms)
 
-int maxsensorvalue[] = {0, 0, 0, 0, 0};
+uint16_t maxsensorvalue[] = {0, 0, 0, 0, 0};
 byte sensorstroke[] = {0, 0, 0, 0, 0};
-byte sensorstate[] = {0, 0, 0, 0, 0};
-byte sensorreadtimes[] = {0, 0, 0, 0, 0};
-
-unsigned long sensorsdecayend[numSensors];
-unsigned long startread[numSensors];
+byte padState = 0;
+bool isStruck = false;
+byte sensorReadTimes = 0;
+unsigned long sensorsDecayEnd = 0;
+unsigned long startRead = 0;
 
 void manageSensors()
 {
@@ -32,29 +27,25 @@ void manageSensors()
   unsigned long now = millis();
 
   // First check and adjust individual sensors state
-  for (int i = 0; i < nbPadSensors; i++)
-  {
+  if (padState == 0)
+  { //0: Waiting for decay
+    if (sensorsDecayEnd < now)
+      padState = 1;
+  }
 
-    if (sensorstate[i] == 0)
-    { //0: Waiting for decay
-      if (sensorsdecayend[i] < now)
-        sensorstate[i] = 1;
-    }
-
-    /*
-    if (sensorstate[i] == 1)
+  /*
+    if (padState == 1)
     { //1: First read : managed in read sensors
     }*/
 
-    if (sensorstate[i] == 2)
-    { //2: Successive readings
-      if (sensorreadtimes[i] >= readtimes)
-        sensorstate[i] = 3;
-    }
+  if (padState == 2)
+  { //2: Successive readings
+    if (sensorreadtimes == readtimes)
+      padState = 3;
   }
 
   // Then manage the strokes
-  if ((padType == 0 || padType == 1 || padType == 3) && sensorstate[0] == 3) // Single zone pad or cymbal
+  if ((padType == 0 || padType == 1 || padType == 3) && padState == 3) // Single zone pad or cymbal
   {
 
     sensorstroke[0] = map(maxsensorvalue[0], 0, 200, 0, 200); //upperThreshold[0] * 4
@@ -76,27 +67,14 @@ void manageSensors()
     sensorsdecayend[0] = map(maxsensorvalue[0], 0, 1023, mindecay, maxdecay) + now;
 
     maxsensorvalue[0] = 0;
-    sensorstate[0] = 0;
-    sensorreadtimes[0] = 0;
+    padState = 0;
+    sensorreadtimes = 0;
+    isStruck = false;
   }
 
-  if ((padType == 2 || padType == 4) && (sensorstate[0] == 3 && sensorstate[1] == 3 && sensorstate[2] == 3)) // Multi zone pad or cymbal
+  if ((padType == 2 || padType == 4) && padState == 3) // Multi zone pad or cymbal
   {
     //To do
-  }
-
-  if ((padType == 1 || padType == 2) && sensorstate[4] == 3) // Single or multi zone pad
-  {
-    sensorstroke[4] = map(maxsensorvalue[4], 0, 1023, 0, 200);
-    sensorsdecayend[4] = map(maxsensorvalue[4], 0, 1023, mindecay, maxdecay) + now;
-
-    if (sensorstroke[4] > 0)
-    {
-      sendStroke(sensorstroke[4], 101);
-    }
-
-    maxsensorvalue[4] = 0;
-    sensorstate[4] = 0;
   }
 }
 
@@ -105,44 +83,73 @@ void readSensors()
 
   unsigned long now = millis();
 
-  for (int i = 0; i < nbPadSensors; i++)
+  for (int i = 0; i < nbPadSensors; i++) // Read sensors values
   {
+    sensor[i].readSensor();
+  }
 
-    if (sensorstate[i] == 1)
-    { //1: First read
-      int val = analogReadFast(sensorspin[i]);
-      if (val > threshold[i])
+  if (rimPad) // Read rim sensor if required
+  {
+    sensor[4].readSensor();
+  }
+
+  sensor[5].readSensor(); // Read frame sensor
+
+  if (padState == 1) //1: First read
+  {
+    for (int i = 0; i < nbPadSensors; i++) // Check all sensors for value over threshold
+    {
+      if (sensor[i].isStruck())
       {
-#ifdef DEBUG
-        sensor1val[0] = val;
-#endif
-
-        if (val > maxsensorvalue[i])
-        {
-          maxsensorvalue[i] = val;
-
-          sensorreadtimes[i]++;
-
-          sensorstate[i] = 2;
-          startread[i] = now;
-        }
+        isStruck = true;
       }
     }
 
-    if (sensorstate[i] == 2)
+    if (sensor[4].isStruck()) // Check rim sensor for value over threshold
     {
-      //int val = analogRead(sensorspin[i]);
-      analogReadFast(sensorspin[i]); //Flush value
-      int val = analogReadFast(sensorspin[i]);
+      isStruck = true;
+    }
 
-#ifdef DEBUG
-      sensor1val[sensorreadtimes[i]] = val;
+    if (isStruck) // Change state if anything has beed flagged as struck
+    {
+      padState = 2;
+      startread = now;
+    }
+  }
+
+  if (padState == 2) // Read values until the number of times is reached
+  {
+#ifdef DEBUG // Register the struck value in the table for debugging
+    for (int i = 0; i < 5; i++)
+    {
+      sensorVal[i][0] = sensor[i].getSensorValue();
+    }
 #endif
 
-      if (val > maxsensorvalue[i])
-        maxsensorvalue[i] = val;
-
-      sensorreadtimes[i]++;
+    for (int i = 0; i < nbPadSensors; i++) // Register pad sensor value
+    {
+      uint16_t currenSensorValue = sensor[i].getSensorValue();
+      if (currenSensorValue > maxsensorvalue[i])
+      {
+        maxsensorvalue[i] = currenSensorValue;
+      }
     }
+
+    if (rimPad) // Read rim sensor if required
+    {
+      uint16_t currenSensorValue = sensor[4].getSensorValue();
+      if (currenSensorValue > maxsensorvalue[4])
+      {
+        maxsensorvalue[4] = currenSensorValue;
+      }
+    }
+
+    uint16_t currenSensorValue = sensor[5].getSensorValue(); // Read frame sensor
+    if (currenSensorValue > maxsensorvalue[5])
+    {
+      maxsensorvalue[5] = currenSensorValue;
+    }
+
+    sensorreadtimes++;
   }
 }
