@@ -7,32 +7,32 @@
  */
 
 #include <Arduino.h>
-#include "avdweb_AnalogReadFast.h"
 
-class DrumSensor {
+class DrumSensor
+{
 
-	public:
+  public:
+	DrumSensor(byte sensorPin);
 
-		DrumSensor(byte sensorPin);
+	void readSensor();
+	uint16_t getSensorValue();
+	void setMinThreshold(byte minthreshold);
+	void setMaxThreshold(byte maxthreshold);
+	byte getMinThreshold();
+	byte getMaxThreshold();
+	bool isStruck();
 
-		void readSensor();
-		uint16_t getSensorValue();
-		void setMinThreashold(byte minthreshold);
-		void setMaxThreashold(byte maxthreshold);
+  private:
+	//	VARIABLES
+	byte _sensorPin;
+	byte _minThreshold;
+	byte _maxThreshold;
+	bool _isStruck;
+	uint16_t _val;
 
-	private:
+	//	CONSTANTS
 
-		//	VARIABLES
-		byte _sensorPin;
-		byte _minThreshold;
-		byte _maxThreshold;
-		bool _isStruck;
-		uint16_t _val;
-
-		//	CONSTANTS
-
-		//	OBJECTS
-
+	//	OBJECTS
 };
 
 #endif

@@ -7,8 +7,9 @@
  */
 
 #include <Arduino.h>
+#include "DrumSensor.h"
 
-//#define DEBUG
+#define DEBUG
 
 // ==== Pins ====
 
@@ -21,22 +22,13 @@ const byte sensorPin4 = 3;
 const byte readCom = 10;
 const byte activeCom = 9;
 
-DrumSensor sensor[]
-{
-  sensorPin0;
-  sensorPin1;
-  sensorPin2;
-  sensorPin3;
-  sensorPin4;
-}
-
 /* padType
   *0: No configuration set, default settings
   *1: Single Zone pad : Bass drum
   *2: Multi Zone Pad : Snare, Toms
   *3: Single Zone Cymbal : Splash
   *4: Multi Zone Cymbal : Ride, Crash, etc */
-const byte defaultPadType = 0;
+const byte defaultPadType = 2;
 
 /* RimPad
   *0: No Rim
@@ -45,9 +37,25 @@ const byte defaultRimPad = 1; //
 const byte defaultCenterThreshold = 0; //Center threshold [0 - 100]
 const byte defaultPadId = 0; //Pad ID [0 - 255]
 const byte defaultLowerThreshold[] = {2, 2, 2, 2, 2};
-const byte defaultUpperThreshold[] = {43, 255, 255, 255, 255}; // Upper threshold needs to be < 255. They are multiplied by 4 in the sensor loop to match the 10 bits ADC values
+const byte defaultUpperThreshold[] = {255, 255, 255, 255, 255}; // Upper threshold needs to be < 255. They are multiplied by 4 in the sensor loop to match the 10 bits ADC values
 
 const int minDecay = 2;  // Maximum decay time (ms)
 const int maxDecay = 15; // Maximum decay time (ms)
+
+byte padType;
+byte rimPad;
+byte nbPadSensors;
+byte centerThreshold;
+
+byte padId;
+
+DrumSensor sensor[] =
+{
+  sensorPin0,
+  sensorPin1,
+  sensorPin2,
+  sensorPin3,
+  sensorPin4,
+};
 
 #endif

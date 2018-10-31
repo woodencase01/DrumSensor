@@ -4,8 +4,6 @@
 #define _config_h
 
 #include <Arduino.h>
-#include <EEPROM.h>
-#include <EEWrap.h>
 
 void configureSensors(void);
 

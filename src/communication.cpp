@@ -13,6 +13,7 @@
 
 */
 #include "communication.h"
+#include "_settings.h"
 
 const byte databytes = 4;
 byte databuffer[databytes];
@@ -72,7 +73,7 @@ void readBuffer()
 void sendStroke(byte strokeStrength, byte strokeID)
 {
   datastroke[0] = 255;
-  datastroke[1] = padid;
+  datastroke[1] = padId;
   datastroke[2] = strokeStrength;
   datastroke[3] = strokeID;
   while (digitalRead(readCom))

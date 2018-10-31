@@ -34,7 +34,7 @@ void setup()
   Serial.print("Pad thresholds: ");
   for (int i = 0; i < nbPadSensors; i++)
   {
-    Serial.print(threshold[i]);
+    Serial.print(sensor[i].getMinThreshold[i]);
     Serial.print(", ");
   }
   Serial.println();

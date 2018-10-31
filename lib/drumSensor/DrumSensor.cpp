@@ -1,7 +1,8 @@
-#include "drumSensor.h"
+#include "DrumSensor.h"
+#include "avdweb_AnalogReadFast.h"
 
 /**
- * @file drumSensor.cpp
+ * @file DrumSensor.cpp
  * @author Philippe Carrier
  */
 
@@ -13,8 +14,8 @@ DrumSensor::DrumSensor(byte sensorPin)
 
 void DrumSensor::readSensor()
 {
-	analogReadFast(_sensorspin); //flush first value, wait ~25µs
-	_val = analogReadFast(_sensorspin);
+	analogReadFast(_sensorPin); //flush first value, wait ~25µs
+	_val = analogReadFast(_sensorPin);
 	if (_val > _minThreshold)
 	{
 		_isStruck = true;
@@ -25,22 +26,32 @@ void DrumSensor::readSensor()
 	}
 }
 
-bool isStruck()
+bool DrumSensor::isStruck()
 {
-	return _isStruck
+	return _isStruck;
 }
 
-uint16_t getSensorValue()
+uint16_t DrumSensor::getSensorValue()
 {
-	return _val
+	return _val;
 }
 
-void setMinThreashold(byte minThreshold)
+void DrumSensor::setMinThreshold(byte minThreshold)
 {
 	_minThreshold = minThreshold;
 }
 
-void setMaxThreashold(byte maxThreshold;)
+void DrumSensor::setMaxThreshold(byte maxThreshold)
 {
 	_maxThreshold = maxThreshold;
+}
+
+byte DrumSensor::getMinThreshold()
+{
+	return _minThreshold;
+}
+
+byte DrumSensor::getMaxThreshold()
+{
+	return _maxThreshold;
 }

@@ -6,6 +6,7 @@
   3: Final value
 */
 #include "sensors.h"
+#include "_settings.h"
 
 const int readtimes = 10; // Number of times the sensor is read
 
@@ -40,7 +41,7 @@ void manageSensors()
 
   if (padState == 2)
   { //2: Successive readings
-    if (sensorreadtimes == readtimes)
+    if (sensorReadTimes == readtimes)
       padState = 3;
   }
 
@@ -57,18 +58,18 @@ void manageSensors()
 #ifdef DEBUG
       for (byte i = 0; i < readtimes; i++)
       {
-        Serial.print(sensor1val[i]);
+        Serial.print(sensorVal[0][i]);
         Serial.print(", ");
       }
       Serial.println("");
 #endif
     }
 
-    sensorsdecayend[0] = map(maxsensorvalue[0], 0, 1023, mindecay, maxdecay) + now;
+    sensorsDecayEnd = map(maxsensorvalue[0], 0, 1023, minDecay, maxDecay) + now;
 
     maxsensorvalue[0] = 0;
     padState = 0;
-    sensorreadtimes = 0;
+    sensorReadTimes = 0;
     isStruck = false;
   }
 
@@ -113,7 +114,7 @@ void readSensors()
     if (isStruck) // Change state if anything has beed flagged as struck
     {
       padState = 2;
-      startread = now;
+      startRead = now;
     }
   }
 
@@ -150,6 +151,6 @@ void readSensors()
       maxsensorvalue[5] = currenSensorValue;
     }
 
-    sensorreadtimes++;
+    sensorReadTimes++;
   }
 }
