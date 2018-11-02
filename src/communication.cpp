@@ -13,7 +13,7 @@
 
 */
 #include "communication.h"
-#include "_settings.h"
+#include "settings.h"
 
 const byte databytes = 4;
 byte databuffer[databytes];
@@ -34,32 +34,26 @@ void readBuffer()
 
     bool goodbuffer = false;
 
-    while (Serial.available() >= databytes)
+    while (Serial.available() >= databytes && !goodbuffer)
     {
       byte bufferread = Serial.read();
-
-      /*#ifdef DEBUG
-        Serial.print("Current read: ");
-        Serial.println(bufferread);
-        #endif */
 
       if (bufferread == 255)
       {
         goodbuffer = true;
-        break;
       }
     }
 
     if (goodbuffer)
     {
-      for (int i = 1; i < databytes; i++)
+      for (byte i = 1; i < databytes; i++)
       {
         databuffer[i] = Serial.read();
       }
 
 #ifdef DEBUG
       Serial.print("Received: ");
-      for (int i = 0; i < databytes - 1; i++)
+      for (byte i = 0; i < databytes - 1; i++)
       {
         Serial.print(databuffer[i]);
         Serial.print(",");

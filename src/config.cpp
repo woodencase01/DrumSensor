@@ -1,7 +1,7 @@
 #include <EEPROM.h>
 #include <EEWrap.h>
 #include "config.h"
-#include "_settings.h"
+#include "settings.h"
 
 uint8_e m_padType EEMEM;
 uint8_e m_rimPad EEMEM;
@@ -55,8 +55,8 @@ void readConfig()
 
   for (byte i = 0; i < 5; i++)
   {
-    sensor[i].setMinThreashold = m_lowerThreshold[i];
-    sensor[i].setMaxThreashold = m_upperThreshold[i];
+    sensor[i].setMinThreshold(m_lowerThreshold[i]);
+    sensor[i].setMaxThreshold(m_upperThreshold[i]);
   }
 
   centerThreshold = m_centerThreshold;

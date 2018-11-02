@@ -57,5 +57,4 @@ DrumSensor sensor[] =
   sensorPin3,
   sensorPin4,
 };
-
 #endif

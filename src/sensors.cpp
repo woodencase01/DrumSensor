@@ -6,7 +6,7 @@
   3: Final value
 */
 #include "sensors.h"
-#include "_settings.h"
+#include "settings.h"
 
 const int readtimes = 10; // Number of times the sensor is read
 

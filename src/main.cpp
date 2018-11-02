@@ -17,13 +17,13 @@
 
 #include <Arduino.h>
 #include "sensors.h"
-#include "_settings.h"
+#include "settings.h"
 
 void setup()
 {
 
   configureSensors(); // Make sure EEPROM is configured correctly after first flash
-  readConfig(); // Assign variables based on EEPROM
+  readConfig();       // Assign variables based on EEPROM
   configurePins();
 
   Serial.begin(115200);
@@ -32,11 +32,19 @@ void setup()
   Serial.print("Pad type: ");
   Serial.println(padType);
   Serial.print("Pad thresholds: ");
-  for (int i = 0; i < nbPadSensors; i++)
+  for (byte i = 0; i < 4; i++)
   {
-    Serial.print(sensor[i].getMinThreshold[i]);
+    Serial.print(sensor[i].getMinThreshold());
     Serial.print(", ");
   }
+  Serial.print(sensor[4].getMinThreshold());
+  Serial.println();
+  for (byte i = 0; i < 4; i++)
+  {
+    Serial.print(sensor[i].getMaxThreshold());
+    Serial.print(", ");
+  }
+  Serial.print(sensor[4].getMaxThreshold());
   Serial.println();
   Serial.print("Center threshold: ");
   Serial.println(centerThreshold);

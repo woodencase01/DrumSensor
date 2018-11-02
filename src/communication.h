@@ -1,10 +1,9 @@
 //communication.h
+#ifndef _communication_h
+#define _communication_h
 
 #include <Arduino.h>
 #include "config.h"
-
-#ifndef _communication_h
-#define _communication_h
 
 void readBuffer();
 void sendBuffer();
