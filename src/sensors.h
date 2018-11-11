@@ -1,10 +1,7 @@
 //sensors.h
 
-#ifndef _sensors_h
-#define _sensors_h
-
-#include <Arduino.h>
-#include "communication.h"
+#ifndef _SENSORS_H
+#define _SENSORS_H
 
 /*
   -=-=-=- Sensors -=-=-=-
@@ -14,7 +11,11 @@
   3: Final value
 */
 
-void manageSensors(void);
-void readSensors(void);
+void manageSensors();
+void readSensors();
+void resetSensor();
+void setPadState(byte state);
+void sensorAnalogRead();
+void registerValues();
 
 #endif

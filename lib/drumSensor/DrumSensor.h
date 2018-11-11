@@ -12,6 +12,7 @@ class DrumSensor
 {
 
   public:
+	DrumSensor();
 	DrumSensor(byte sensorPin);
 
 	void readSensor();

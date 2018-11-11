@@ -18,6 +18,8 @@
 #include <Arduino.h>
 #include "sensors.h"
 #include "settings.h"
+#include "communication.h"
+#include "config.h"
 
 void setup()
 {
@@ -29,31 +31,14 @@ void setup()
   Serial.begin(115200);
 
 #ifdef DEBUG
-  Serial.print("Pad type: ");
-  Serial.println(padType);
-  Serial.print("Pad thresholds: ");
-  for (byte i = 0; i < 4; i++)
-  {
-    Serial.print(sensor[i].getMinThreshold());
-    Serial.print(", ");
-  }
-  Serial.print(sensor[4].getMinThreshold());
-  Serial.println();
-  for (byte i = 0; i < 4; i++)
-  {
-    Serial.print(sensor[i].getMaxThreshold());
-    Serial.print(", ");
-  }
-  Serial.print(sensor[4].getMaxThreshold());
-  Serial.println();
-  Serial.print("Center threshold: ");
-  Serial.println(centerThreshold);
-  Serial.println("Drum Sensor Ready");
+  listConfig();
 #endif
+  sensorAnalogRead(); // Prepare the ADC and avoid false triggers at start
 }
 
 void loop()
 {
   manageSensors();
   readSensors();
+  readBuffer();
 }

@@ -9,9 +9,17 @@
   *101: Rim
 
   -=-=-=- Configuration Protocol -=-=-=-
-  byte 0: Start byte [254]
-
+  byte 0: 
+  254 : Start byte 
+  byte 1: 
+    0 : Reset configuration to default
+    1 : Set padID
+      byte 2: Pad ID
+  254 : Read configuration
+  255 : Store Configuration in EEPROM
 */
+#include <Arduino.h>
+#include "config.h"
 #include "communication.h"
 #include "settings.h"
 
@@ -38,9 +46,10 @@ void readBuffer()
     {
       byte bufferread = Serial.read();
 
-      if (bufferread == 255)
+      if (bufferread >= 254) // Either a stroke or a configuration
       {
         goodbuffer = true;
+        databuffer[0] = bufferread;
       }
     }
 
@@ -52,14 +61,44 @@ void readBuffer()
       }
 
 #ifdef DEBUG
-      Serial.print("Received: ");
+      Serial.print(F("Received: "));
       for (byte i = 0; i < databytes - 1; i++)
       {
         Serial.print(databuffer[i]);
-        Serial.print(",");
+        Serial.print(F(","));
       }
       Serial.println(databuffer[databytes - 1]);
 #endif
+      if (databuffer[0] == 254) // Configuration command received
+      {
+        switch (databuffer[1])
+        {
+        case 0: // Reset configuration to default
+          loadFactoryDefaults();
+#ifdef DEBUG
+          Serial.println(F("Loaded factory defaults"));
+#endif
+          break;
+        case 1: // Change padID value
+          setPadId(databuffer[2]);
+#ifdef DEBUG
+          Serial.print(F("Pad ID set as "));
+          Serial.println(databuffer[2]);
+#endif
+          break;
+        case 254: // List configuration
+#ifdef DEBUG      // Only available in debug
+          listConfig();
+#endif
+          break;
+        case 255: // Store Configuration in EEPROM
+          storeConfig();
+#ifdef DEBUG
+          Serial.println(F("Stored configuration in EEPROM"));
+#endif
+          break;
+        }
+      }
     }
   }
 }
@@ -80,11 +119,11 @@ void sendStroke(byte strokeStrength, byte strokeID)
 
 #ifdef DEBUG
   Serial.println();
-  Serial.print("Sent: ");
+  Serial.print(F("Sent: "));
   for (int i = 0; i < databytes - 1; i++)
   {
     Serial.print(datastroke[i]);
-    Serial.print(",");
+    Serial.print(F(","));
   }
   Serial.println(datastroke[databytes - 1]);
 #endif

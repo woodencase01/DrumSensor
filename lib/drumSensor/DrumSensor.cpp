@@ -6,10 +6,13 @@
  * @author Philippe Carrier
  */
 
+DrumSensor::DrumSensor()
+{
+}
+
 DrumSensor::DrumSensor(byte sensorPin)
 {
 	_sensorPin = sensorPin;
-	// initialize variables
 }
 
 void DrumSensor::readSensor()

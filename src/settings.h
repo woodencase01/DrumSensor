@@ -9,7 +9,8 @@
 #include <Arduino.h>
 #include "DrumSensor.h"
 
-#define DEBUG
+#define DEBUG  // Basic debug level
+#define DEBUG1 // Debug level interfering with sensor read routines timings (adds 500 µs)
 
 // ==== Pins ====
 
@@ -36,25 +37,20 @@ const byte defaultPadType = 2;
 const byte defaultRimPad = 1; // 
 const byte defaultCenterThreshold = 0; //Center threshold [0 - 100]
 const byte defaultPadId = 0; //Pad ID [0 - 255]
-const byte defaultLowerThreshold[] = {2, 2, 2, 2, 2};
-const byte defaultUpperThreshold[] = {255, 255, 255, 255, 255}; // Upper threshold needs to be < 255. They are multiplied by 4 in the sensor loop to match the 10 bits ADC values
+const byte defaultLowerThreshold[] = {4, 4, 4, 4, 4};
+const byte defaultUpperThreshold[] = {150, 150, 150, 150, 150}; // Upper threshold needs to be < 255. They are multiplied by 4 in the sensor loop to match the 10 bits ADC values
 
-const int minDecay = 2;  // Maximum decay time (ms)
-const int maxDecay = 15; // Maximum decay time (ms)
+// Quadruplets at 250 BPM correspond to 60 ms between strokes
+//                 A flam correspond to 40 ms between strokes
+const int minDecay = 5;  // Minimum decay time (ms)
+const int maxDecay = 20; // Maximum decay time (ms)
 
-byte padType;
-byte rimPad;
-byte nbPadSensors;
-byte centerThreshold;
+extern byte padType;
+extern byte rimPad;
+extern byte nbPadSensors;
+extern byte centerThreshold;
+extern byte padId;
 
-byte padId;
+extern DrumSensor sensor[5];
 
-DrumSensor sensor[] =
-{
-  sensorPin0,
-  sensorPin1,
-  sensorPin2,
-  sensorPin3,
-  sensorPin4,
-};
 #endif
