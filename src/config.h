@@ -1,16 +1,16 @@
 //config.h
 
-#ifndef _config_h
-#define _config_h
+#ifndef _CONFIG_h
+#define _CONFIG_h
 
-#include <Arduino.h>
-
-void configureSensors(void);
-
-void initializeModule(void);
-
-void readConfig(void);
-
-void configurePins(void);
+void configureSensors();
+void initializeModule();
+void readConfig();
+void configurePins();
+void loadFactoryDefaults();
+void setPadId(byte id);
+void storeConfig();
+void listConfig();
+void prepareSensors();
 
 #endif

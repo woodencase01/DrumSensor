@@ -1,12 +1,11 @@
 #include "settings.h"
 
-DrumSensor sensor[] =
-{
-  sensorPin0,
-  sensorPin1,
-  sensorPin2,
-  sensorPin3,
-  sensorPin4,
+DrumSensor sensor[5] = {
+    DrumSensor(sensorPin0),
+    DrumSensor(sensorPin1),
+    DrumSensor(sensorPin2),
+    DrumSensor(sensorPin3),
+    DrumSensor(sensorPin4),
 };
 
 byte padType;

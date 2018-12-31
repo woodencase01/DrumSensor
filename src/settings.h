@@ -9,7 +9,8 @@
 #include <Arduino.h>
 #include "DrumSensor.h"
 
-#define DEBUG
+#define DEBUG  // Basic debug level
+#define DEBUG1 // Debug level interfering with sensor read routines timings (adds 500 µs)
 
 // ==== Pins ====
 
@@ -39,8 +40,8 @@ const byte defaultPadId = 0; //Pad ID [0 - 255]
 const byte defaultLowerThreshold[] = {10, 10, 10, 10, 10};
 const byte defaultUpperThreshold[] = {255, 255, 255, 255, 255}; // Upper threshold needs to be < 255. They are multiplied by 4 in the sensor loop to match the 10 bits ADC values
 
-const int minDecay = 2;  // Maximum decay time (ms)
-const int maxDecay = 15; // Maximum decay time (ms)
+const int minDecay = 5;  // Maximum decay time (ms)
+const int maxDecay = 20; // Maximum decay time (ms)
 
 extern byte padType;
 extern byte rimPad;

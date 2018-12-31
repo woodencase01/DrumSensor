@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <EEPROM.h>
 #include <EEWrap.h>
 #include "config.h"
@@ -14,14 +15,7 @@ void configureSensors()
 {
 #ifdef DEBUG // Force default config
   Serial.println(F("Loading Default configuration"));
-  m_padType = defaultPadType;
-  m_rimPad = defaultRimPad;
-  m_centerThreshold = defaultCenterThreshold;
-  m_padId = defaultPadId;
-  for (byte i = 0; i < 5; i++)
-    m_lowerThreshold[i] = defaultLowerThreshold[i];
-  for (byte i = 0; i < 5; i++)
-    m_upperThreshold[i] = defaultUpperThreshold[i];
+  loadFactoryDefaults();
 #endif
 
 #ifndef DEBUG
@@ -50,7 +44,7 @@ void readConfig()
 
   if ((padType == 2) || (padType == 4)) // 3 zones sensor
   {
-    nbPadSensors = 4;
+    nbPadSensors = 3;
   }
 
   for (byte i = 0; i < 5; i++)
@@ -68,4 +62,63 @@ void configurePins()
 {
   pinMode(readCom, INPUT);
   pinMode(activeCom, OUTPUT);
+}
+
+void loadFactoryDefaults()
+{
+  m_padType = defaultPadType;
+  m_rimPad = defaultRimPad;
+  m_centerThreshold = defaultCenterThreshold;
+  m_padId = defaultPadId;
+  for (byte i = 0; i < 5; i++)
+    m_lowerThreshold[i] = defaultLowerThreshold[i];
+  for (byte i = 0; i < 5; i++)
+    m_upperThreshold[i] = defaultUpperThreshold[i];
+}
+
+void setPadId(byte id)
+{
+  padId = id;
+}
+
+void storeConfig()
+{
+  m_padType = padType;
+  m_rimPad = rimPad;
+  m_centerThreshold = centerThreshold;
+  m_padId = padId;
+  for (byte i = 0; i < 5; i++)
+    m_lowerThreshold[i] = sensor[i].getMinThreshold();
+  for (byte i = 0; i < 5; i++)
+    m_upperThreshold[i] = sensor[i].getMaxThreshold();
+}
+
+void listConfig()
+{
+#ifdef DEBUG
+  Serial.print(F("Pad type: "));
+  Serial.println(padType);
+  Serial.print(F("Pad ID: "));
+  Serial.println(padId);
+  Serial.println(F("Pad thresholds: "));
+  Serial.println(F("Min"));
+  for (byte i = 0; i < 4; i++)
+  {
+    Serial.print(sensor[i].getMinThreshold());
+    Serial.print(F(", "));
+  }
+  Serial.println(sensor[4].getMinThreshold());
+  Serial.println(F("Max"));
+  for (byte i = 0; i < 4; i++)
+  {
+    Serial.print(sensor[i].getMaxThreshold());
+    Serial.print(F(", "));
+  }
+  Serial.println(sensor[4].getMaxThreshold());
+  Serial.print(F("Center threshold: "));
+  Serial.println(centerThreshold);
+  Serial.print(F("Rim: "));
+  Serial.println(rimPad);
+  Serial.println(F("Drum Sensor Ready"));
+#endif
 }
