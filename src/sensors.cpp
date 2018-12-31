@@ -8,7 +8,7 @@
 #include "sensors.h"
 #include "settings.h"
 
-const int readtimes = 10; // Number of times the sensor is read
+const int readtimes = 75; // Number of times the sensor is read
 
 #ifdef DEBUG
 uint16_t sensorVal[5][readtimes];
@@ -123,7 +123,7 @@ void readSensors()
 #ifdef DEBUG // Register the struck value in the table for debugging
     for (int i = 0; i < 5; i++)
     {
-      sensorVal[i][0] = sensor[i].getSensorValue();
+      sensorVal[i][sensorReadTimes] = sensor[i].getSensorValue();
     }
 #endif
 

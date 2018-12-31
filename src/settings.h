@@ -13,11 +13,11 @@
 
 // ==== Pins ====
 
-const byte sensorPin0 = 7;
-const byte sensorPin1 = 6;
-const byte sensorPin2 = 5;
-const byte sensorPin3 = 4;
-const byte sensorPin4 = 3;
+const byte sensorPin0 = 0;
+const byte sensorPin1 = 1;
+const byte sensorPin2 = 2;
+const byte sensorPin3 = 3;
+const byte sensorPin4 = 4;
 
 const byte readCom = 10;
 const byte activeCom = 9;
@@ -28,7 +28,7 @@ const byte activeCom = 9;
   *2: Multi Zone Pad : Snare, Toms
   *3: Single Zone Cymbal : Splash
   *4: Multi Zone Cymbal : Ride, Crash, etc */
-const byte defaultPadType = 2;
+const byte defaultPadType = 1;
 
 /* RimPad
   *0: No Rim
@@ -36,25 +36,19 @@ const byte defaultPadType = 2;
 const byte defaultRimPad = 1; // 
 const byte defaultCenterThreshold = 0; //Center threshold [0 - 100]
 const byte defaultPadId = 0; //Pad ID [0 - 255]
-const byte defaultLowerThreshold[] = {2, 2, 2, 2, 2};
+const byte defaultLowerThreshold[] = {10, 10, 10, 10, 10};
 const byte defaultUpperThreshold[] = {255, 255, 255, 255, 255}; // Upper threshold needs to be < 255. They are multiplied by 4 in the sensor loop to match the 10 bits ADC values
 
 const int minDecay = 2;  // Maximum decay time (ms)
 const int maxDecay = 15; // Maximum decay time (ms)
 
-byte padType;
-byte rimPad;
-byte nbPadSensors;
-byte centerThreshold;
+extern byte padType;
+extern byte rimPad;
+extern byte nbPadSensors;
+extern byte centerThreshold;
 
-byte padId;
+extern byte padId;
 
-DrumSensor sensor[] =
-{
-  sensorPin0,
-  sensorPin1,
-  sensorPin2,
-  sensorPin3,
-  sensorPin4,
-};
+extern DrumSensor sensor[5];
+
 #endif
