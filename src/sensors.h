@@ -17,5 +17,6 @@ void resetSensor();
 void setPadState(byte state);
 void sensorAnalogRead();
 void registerValues();
+void setCalibration(bool state);
 
 #endif

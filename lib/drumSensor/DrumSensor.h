@@ -29,6 +29,7 @@ class DrumSensor
 	byte _minThreshold;
 	byte _maxThreshold;
 	bool _isStruck;
+
 	uint16_t _val;
 
 	//	CONSTANTS

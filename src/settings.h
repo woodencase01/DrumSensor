@@ -29,7 +29,7 @@ const byte activeCom = 9;
   *2: Multi Zone Pad : Snare, Toms
   *3: Single Zone Cymbal : Splash
   *4: Multi Zone Cymbal : Ride, Crash, etc */
-const byte defaultPadType = 1;
+const byte defaultPadType = 2;
 
 /* RimPad
   *0: No Rim
@@ -49,6 +49,8 @@ extern byte nbPadSensors;
 extern byte centerThreshold;
 
 extern byte padId;
+
+const uint8_t calibratingValues = 5;
 
 extern DrumSensor sensor[5];
 

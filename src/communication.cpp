@@ -15,6 +15,7 @@
     0 : Reset configuration to default
     1 : Set padID
       byte 2: Pad ID
+    2 : Calibrate pad
   254 : Read configuration
   255 : Store Configuration in EEPROM
 */
@@ -22,6 +23,7 @@
 #include "config.h"
 #include "communication.h"
 #include "settings.h"
+#include "sensors.h"
 
 const byte databytes = 4;
 byte databuffer[databytes];
@@ -84,6 +86,12 @@ void readBuffer()
 #ifdef DEBUG
           Serial.print(F("Pad ID set as "));
           Serial.println(databuffer[2]);
+#endif
+          break;
+        case 2: // Calibrate pad
+          setCalibration(true);
+#ifdef DEBUG
+          Serial.println(F("Pad calibration has started"));
 #endif
           break;
         case 254: // List configuration

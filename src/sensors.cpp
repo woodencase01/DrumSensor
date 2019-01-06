@@ -26,8 +26,12 @@ byte sensorstroke[] = {0, 0, 0, 0, 0};
 byte padState = 0;
 bool isStruck = false;
 byte sensorReadTimes = 0;
-unsigned long sensorsDecayEnd = 0;
-unsigned long startRead = 0;
+uint32_t sensorsDecayEnd;
+uint32_t startRead;
+
+uint16_t calibratingRatio[2]; // Only compairing sensors 2 and 3 over sensor 1, 2 ratios are needed
+uint8_t calibratingCycle;
+bool calibration;
 
 void manageSensors()
 {
@@ -52,13 +56,10 @@ void manageSensors()
     {
       sendStroke(sensorstroke[0], 100);
 
-#ifdef DEBUG1
-      for (byte i = 0; i < readtimes; i++)
-      {
-        Serial.print(sensorVal[0][i]);
-        Serial.print(", ");
-      }
-      Serial.println("");
+#ifdef DEBUG
+      sentTimeMicro = micros();
+      Serial.print(F("Time: "));
+      Serial.println(sentTimeMicro - struckTimeMicro);
 #endif
     }
 
@@ -78,6 +79,23 @@ void manageSensors()
 
     uint16_t averageStroke = (sensorstroke[0] + sensorstroke[1] + sensorstroke[2]) / 3;
 
+#ifdef DEBUG
+    Serial.print(F("Pad max values: "));
+    for (byte i = 0; i < nbPadSensors; i++)
+    {
+      Serial.print(maxsensorvalue[i]);
+      Serial.print(F(", "));
+    }
+    Serial.println();
+    Serial.print(F("Pad stroke: "));
+    for (byte i = 0; i < nbPadSensors; i++)
+    {
+      Serial.print(sensorstroke[i]);
+      Serial.print(F(", "));
+    }
+    Serial.println();
+#endif
+
     sendStroke(averageStroke, 100);
 
 #ifdef DEBUG
@@ -87,6 +105,47 @@ void manageSensors()
 #endif
 
     sensorsDecayEnd = map(averageStroke, 0, 200, minDecay, maxDecay) + now;
+
+    if (calibration)
+    {
+      for (byte i = 0; i < 2; i++) // Get all ratio based on sensor 1
+      {
+        calibratingRatio[i] += maxsensorvalue[0] * 64 / maxsensorvalue[i + 1];
+      }
+#ifdef DEBUG
+      Serial.print(F("Calibration: "));
+      Serial.print(calibratingCycle);
+      Serial.print(F(", "));
+      Serial.print(calibratingRatio[0]);
+      Serial.print(F(", "));
+      Serial.print(calibratingRatio[1]);
+      Serial.println();
+#endif
+      calibratingCycle++;
+
+      if (calibratingCycle == calibratingValues) // Last value is reached, time to calculate
+      {
+        for (byte i = 0; i < 2; i++)
+        {
+          // Calculate the new threshold
+          calibratingRatio[i] = (uint32_t)calibratingValues * sensor[i + 1].getMaxThreshold() * 64 / calibratingRatio[i];
+#ifdef DEBUG
+          Serial.print(F("New threshold for sensor "));
+          Serial.print(i + 1);
+          Serial.print(F("is: "));
+          Serial.println(calibratingRatio[i]);
+#endif
+          // Set the new threshold value
+          sensor[i + 1].setMaxThreshold(calibratingRatio[i]);
+        }
+        calibratingCycle = 0;
+        for (byte i = 0; i < 2; i++)
+        {
+          calibratingRatio[i] = 0;
+        }
+        setCalibration(false);
+      }
+    }
 
     resetSensor();
   }
@@ -239,4 +298,9 @@ void registerValues()
   {
     maxsensorvalue[4] = currenSensorValue;
   }
+}
+
+void setCalibration(bool state)
+{
+  calibration = state;
 }
