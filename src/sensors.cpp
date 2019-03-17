@@ -41,6 +41,7 @@ void manageSensors()
   if (padState == 0) //0: Waiting for decay
   {
     if (sensorsDecayEnd < now)
+      digitalWrite(resetPeakPin,LOW);
       setPadState(1);
   }
 
@@ -64,7 +65,7 @@ void manageSensors()
     }
 
     sensorsDecayEnd = map(sensorstroke[0], 0, 200, minDecay, maxDecay) + now;
-
+    digitalWrite(resetPeakPin,HIGH);
     resetSensor();
   }
   /* +----------------------------------
@@ -105,6 +106,7 @@ void manageSensors()
 #endif
 
     sensorsDecayEnd = map(averageStroke, 0, 200, minDecay, maxDecay) + now;
+    digitalWrite(resetPeakPin,HIGH);
 
     if (calibration)
     {

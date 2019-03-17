@@ -62,6 +62,7 @@ void configurePins()
 {
   pinMode(readCom, INPUT);
   pinMode(activeCom, OUTPUT);
+  pinMode(resetPeakPin, OUTPUT);
 }
 
 void loadFactoryDefaults()
